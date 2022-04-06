@@ -1,0 +1,23 @@
+{
+	"name": "Sam.Hyde",
+	"version": "1.0.0",
+	"description": "Sam Hyde the eternal god.",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified \" && exit 1"
+	},
+	"author": "MSPaintBobRoss",
+	"license": "ISC",
+	"dependencies": {
+		"@discordjs/opus": "^0.5.3",
+		"@discordjs/voice": "^0.8.0",
+		"@iceprod/discord.js-commando": "^0.15.1",
+		"discord-api-types": "^0.30.0",
+		"discord-speech-recognition": "^1.1.0",
+		"discord.js": "^12.5.3",
+		"discord.js-commando": "^0.10.0",
+		"fetch": "^1.1.0",
+		"ffmpeg-static": "^4.4.1",
+		"opusscript": "0.0.6"
+	}
+}
