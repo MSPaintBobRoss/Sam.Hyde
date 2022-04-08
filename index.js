@@ -41,6 +41,10 @@ var progression_NiceCock = 0;				// Progresses through 4 versions of nice cock
 function playClip(guildConnection, searchLogic, PATH, settings){
 	if(searchLogic){
 		const dispatcher = guildConnection.play(PATH, settings);
+		dispatcher.on('start', () => {
+			console.log(dispatcher.paused + " - " + dispatcher.pausedTime);
+			dispatcher.pausedTime = 0;
+		})
 		doCooldown(guildConnection.channel.guild.id);
 	}
 }
@@ -110,6 +114,8 @@ function theyCallMeMoonman(guildConnection, msg){
 	setTimeout(function(){ msg.member.setNickname('David Duke?')}, 24000);
 }
 
+
+
 /******************
  * DATABASE FUNCS *
  ******************/
@@ -136,6 +142,7 @@ function loadServerSettings(){
 	return collection;
 }
 
+
 function saveServerSettings(){
 	// Apply all of the keys to serverSettingsJSON
 	serverSettingsJSON.keys = serverSettings.keyArray();
@@ -154,6 +161,8 @@ function saveServerSettings(){
     console.log("Done writing"); // Success
 });
 }
+
+
 
 /*****************
  * API FUNCTIONS *
@@ -190,6 +199,7 @@ function createWatch2Gether(msg){
 	});
 }
 
+
 // Google search
 function searchGoogle(msg){
 	// Get the search URL
@@ -215,11 +225,14 @@ function searchGoogle(msg){
 	});
 }
 
+
+
 /************
  *   ****	*
  * TRIGGERS *
  *   ****   *
  ************/
+
 
 /*******************
  * LESSER TRIGGERS *
@@ -235,6 +248,7 @@ client.on('message', msg => {
 			serverSettings.set(msg.guild.id, {});
 			serverSettings.get(msg.guild.id).voiceCooldown = 15;
 			serverSettings.get(msg.guild.id).cooldownActive = false;
+			serverSettings.get(msg.guild.id).isListening = true;
 			console.log(serverSettings);
 			console.log(serverSettings.keyArray());
 			saveServerSettings();
@@ -259,8 +273,16 @@ client.on('ready', function(){
 	console.log("Ready");
 })
 
+
 // Triggers whenver a member joins/leaves a channel, mutes/unmutes, etc.
 client.on("voiceStateUpdate", function(oldMember, newMember){
+	//Fetch the proper connection if available, exiting if unavailable
+	var guildConnection = client.voice.connections.get(oldMember.guild.id);
+	if(guildConnection == undefined){
+		//console.log("No viable guild connection found. Exiting voiceStateUpdate trigger.")
+		return;
+	}
+
     // Events for when a member was not in a channel and enters a channel
 	if(oldMember.channel == null && newMember.channel != null){
 
@@ -294,8 +316,10 @@ client.on("voiceStateUpdate", function(oldMember, newMember){
 		
 		}
 
-	}				
+	}			
+
 });
+
 
 
 /*******************
@@ -321,7 +345,6 @@ client.on("speech", (msg) => {
 	var messengerID = msg.member.user.tag;
 	console.log(guildName + ' -- ' + messengerName + " (" + messengerID + "): " + msgText);
 
-
 	/****************
 	 * SAM COMMANDS *
 	 ****************/
@@ -334,12 +357,12 @@ client.on("speech", (msg) => {
 		}
 
 		else if(msgText.includes('listen')){
-			serverSettings(msg.member.guild.id).isListening = true;
+			serverSettings.get(msg.member.guild.id).isListening = true;
 			playAffirmation(guildConnection);
 		}
 
 		else if(msgText.includes('shut up')){
-			serverSettings(msg.member.guild.id).isListening = false;
+			serverSettings.get(msg.member.guild.id).isListening = false;
 			const dispatcher = guildConnection.play( "./voiceClips/ok0.ogg", {volume: .7} );
 		}
 
@@ -402,15 +425,15 @@ client.on("speech", (msg) => {
 			createWatch2Gether(msg);
 		}
 
-		// Search google
+		// Search google for everything after Google ("Hey Sam Google <search phrase>")
 		else if(msgText.toLowerCase().includes('google')){
 			searchGoogle(msg);
 		}
 
 		// LEAVE FOR LAST. If people just said hey, hi, or hello, do a greeting
-		/*else if(searchForSequence(words, [[/\bhey/i,/\bhello/i,/\bhi/i,/\byo/i,/\bIsam/i]]))
-			playGreeting(guildConnection);*/
-
+		else if(searchForSequence(words, [[/\bhey/i,/\bhello/i,/\bhi/i,/\byo/i,/\bIsam/i]])){
+			playGreeting(guildConnection);
+		}
 	}
 
 
@@ -453,7 +476,7 @@ client.on("speech", (msg) => {
 			'./voiceClips/blackbelt.mp3', {volume: .65} );
 
 		// "queen" + " here"
-		playClip( guildConnection, msgText.toLowerCase().includes('queen') && msgText.includes('here'),
+		playClip( guildConnection, msgText.toLowerCase().includes('queen') && msgText.toLowerCase().includes('here'),
 			'./voiceClips/queen.mp3', {volume: .8} );
 
 		// "s***" + "king"
@@ -505,7 +528,7 @@ client.on("speech", (msg) => {
 			'./voiceClips/snailman.mp3', {volume: 1} );
 
 		// "good night"
-		playClip( guildConnection, msgText.includes('goodnight') || msgText.includes('good night'),
+		playClip( guildConnection, msgText.toLowerCase().includes('goodnight') || msgText.toLowerCase().includes('good night'),
 			'./voiceClips/goodnightManPeace.ogg', {volume: 1} );
 
 		// "nice bike" / "trike"
@@ -554,7 +577,15 @@ client.on("speech", (msg) => {
 			playClip( guildConnection, msgText.toLowerCase().includes('i\'m fine'),
 			'./voiceClips/theyAskYouHowYouAre.ogg', {volume: .65} );
 
-			// "plead fifth"
+			// "China"
+			playClip( guildConnection, msgText.toLowerCase().includes('china'),
+			'./voiceClips/socialCreditDeductedHalo.ogg', {volume: .8} );
+
+			// "420"
+			playClip( guildConnection, msgText.includes('420'),
+			'./voiceClips/smokeWeedEveryDay.mp3', {volume: 1.2} );
+
+			// "plead" + "fifth"
 
 			// "built different"
 
