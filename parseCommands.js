@@ -36,7 +36,7 @@ fs.readFile('index.js',function(err, indexData){
         }
 
         // <SAM> Sam Commands
-        README += '### Sam Commands - "Hey Sam, <command>"\n'
+        README += '### Sam Commands - "Hey Sam, *command*"\n'
         for(var i = 1; i < samCommandList.length; i++){
             README += "> " + samCommandList[i].toString() + "<br />";
         }
