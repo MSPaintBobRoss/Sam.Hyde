@@ -1,5 +1,6 @@
 const fs = require('fs');
 const { exit } = require('process');
+var samCommandList = new Array(String);
 var voiceCommandList = new Array(String);
 var README;
 
@@ -8,9 +9,16 @@ var README;
 fs.readFile('index.js',function(err, indexData){
     var lines = indexData.toString().split("\n");
     for(var i = 0; i < lines.length; i++){
-        var tagSplit = lines[i].toString().split('//<VC> ');
-        if(tagSplit.length > 1){
-            voiceCommandList.push(tagSplit[1]);
+        // If <SAM>, add to samCommandList
+        var SAMSplit = lines[i].toString().split('//<SAM> ');
+        if(SAMSplit.length > 1){
+            samCommandList.push(SAMSplit[1]);
+        }
+        
+        // If <VC>, add to voiceCommandList
+        var VCSplit = lines[i].toString().split('//<VC> ');
+        if(VCSplit.length > 1){
+            voiceCommandList.push(VCSplit[1]);
         }
     }
 
@@ -28,12 +36,15 @@ fs.readFile('index.js',function(err, indexData){
         }
 
         // <SAM> Sam Commands
-        // README += '### Sam Commands - "Hey Sam, <command>"\n'
+        README += '### Sam Commands - "Hey Sam, <command>"\n'
+        for(var i = 1; i < samCommandList.length; i++){
+            README += "> " + samCommandList[i].toString();
+        }
 
-        // <VC> Voice Commands
-        README += "### Phrase Commands\n"
+        // <VC> Quote Commands
+        README += "### Quote Commands\n"
         for(var i = 1; i < voiceCommandList.length; i++){
-            README += "- " + voiceCommandList[i].toString();
+            README += "> " + voiceCommandList[i].toString();
         }
         fs.writeFile('README.md', README.toString(), {encoding: "utf8"},function(){});
     });

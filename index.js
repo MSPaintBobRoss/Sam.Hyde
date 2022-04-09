@@ -353,15 +353,18 @@ client.on("speech", (msg) => {
 	// "Sam" commands. Executed in order of precedence
 	if( msgText.includes('Sam') ){
 		
+		//<SAM> "f*** off" - Kick Sam from the channel
 		if(msgText.includes('f*** off')){
 			msg.member.voice.channel.leave();
 		}
 
+		//<SAM> "listen" - Make Sam listen for quotes again
 		else if(msgText.includes('listen')){
 			serverSettings.get(msg.member.guild.id).isListening = true;
 			playAffirmation(guildConnection);
 		}
 
+		//<SAM> "shut up" - Make Sam stop listening for quotes
 		else if(msgText.includes('shut up')){
 			serverSettings.get(msg.member.guild.id).isListening = false;
 			const dispatcher = guildConnection.play( "./voiceClips/ok0.ogg", {volume: .7} );
@@ -377,7 +380,7 @@ client.on("speech", (msg) => {
 			playAffirmation(guildConnection);
 		}
 
-		// Set the voice cooldown in seconds
+		//<SAM> "set cooldown <seconds>" - Set the phrase cooldown
 		else if(msgText.includes('set cool')){
 			var msgArray = msgText.split(' ');
 			var parsedCD = parseFloat(msgArray[msgArray.length-1]);
@@ -389,6 +392,7 @@ client.on("speech", (msg) => {
 			}
 		}
 
+		//<SAM> "what do they call me" - What DO they call you??
 		else if(msgText.includes('call') && msgText.includes('me')){
 			// Exception for missing permissions
 			// DO THIS AT SOME POINT ^^^
@@ -421,17 +425,17 @@ client.on("speech", (msg) => {
 			msg.member.setNickname( name );
 		}
 
-		// Generate a watch2gether room
+		//<SAM> "create watch" - Generate a watch2gether room
 		else if(msgText.includes('create watch')){
 			createWatch2Gether(msg);
 		}
 
-		// Search google for everything after Google ("Hey Sam Google <search phrase>")
+		//<SAM> "Hey Sam Google <search phrase>" - Search google for everything after Google
 		else if(msgText.toLowerCase().includes('google')){
 			searchGoogle(msg);
 		}
 
-		// LEAVE FOR LAST. If people just said hey, hi, or hello, do a greeting
+		//<SAM> "Hi" / "Hello" / etc.
 		else if(searchForSequence(words, [[/\bhey/i,/\bhello/i,/\bhi/i,/\byo/i,/\bIsam/i]])){
 			playGreeting(guildConnection);
 		}
