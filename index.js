@@ -430,7 +430,7 @@ client.on("speech", (msg) => {
 			createWatch2Gether(msg);
 		}
 
-		//<SAM> "Hey Sam Google *search phrase*" - Search google for everything after Google
+		//<SAM> "Google *search phrase*" - Search google for everything after Google
 		else if(msgText.toLowerCase().includes('google')){
 			searchGoogle(msg);
 		}
