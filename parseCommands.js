@@ -38,13 +38,13 @@ fs.readFile('index.js',function(err, indexData){
         // <SAM> Sam Commands
         README += '### Sam Commands - "Hey Sam, <command>"\n'
         for(var i = 1; i < samCommandList.length; i++){
-            README += "> " + samCommandList[i].toString() + "\n";
+            README += "> " + samCommandList[i].toString() + "<br />";
         }
 
         // <VC> Quote Commands
         README += "### Quote Commands\n"
         for(var i = 1; i < voiceCommandList.length; i++){
-            README += "> " + voiceCommandList[i].toString() + "\n";
+            README += "> " + voiceCommandList[i].toString() + "<br />";
         }
         fs.writeFile('README.md', README.toString(), {encoding: "utf8"},function(){});
     });
