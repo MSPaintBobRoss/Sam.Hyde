@@ -447,150 +447,150 @@ client.on("speech", (msg) => {
 	// Voice recognition clips ONLY IF IS LISTENING and NOT ON COOLDOWN
 	else if(serverSettings.get(msg.member.guild.id).isListening 
 	  && !serverSettings.get(msg.member.guild.id).cooldownActive){
-		// "snake eyes"
+		//<VC> "snake eyes"
 		playClip( guildConnection, msgText.includes('snake eyes'), 
 			'./voiceClips/fiveone.mp3', {volume: .9} );
 
-		// "John Oliver"
+		//<VC> "John Oliver"
 		playClip( guildConnection, msgText.toLowerCase().includes('john oliver'), 
 			'./voiceClips/johnOliver.mp3', {volume: .6} );
 
-		// "early" + "often"
+		//<VC> "early" + "often"
 		playClip( guildConnection, msgText.includes('early') && msgText.includes('often'), 
 			'./voiceClips/earlyoften.mp3', {volume: .8} );
 
-		// "oh shit yo"
+		//<VC> "oh shit yo"
 		playClip( guildConnection, msgText.includes('oh s*** yo'), 
 			'./voiceClips/whoawhat.mp3', {volume: .8} );
 
-		// "I'm dead"
+		//<VC> "I'm dead"
 		playClip( guildConnection, msgText.toLowerCase().includes('i\'m dead'), 
 			//'./voiceClips/imdead.mp3', {volume: .8} );
 			'./voiceClips/imDeadShort.ogg', {volume: .8} );
 
-		// "peace" + "keeper"
+		//<VC> "peace" + "keeper"
 		playClip( guildConnection, msgText.toLowerCase().includes('peace') && msgText.includes('keeper'), 
 			'./voiceClips/peacekeeper.ogg', {volume: .6} );
 
-		// "black" + "belt"
+		//<VC> "black" + "belt"
 		playClip( guildConnection, msgText.includes('black') && msgText.includes('belt'), 
 			'./voiceClips/blackbelt.mp3', {volume: .65} );
 
-		// "queen" + " here"
+		//<VC> "queen" + " here"
 		playClip( guildConnection, msgText.toLowerCase().includes('queen') && msgText.toLowerCase().includes('here'),
 			'./voiceClips/queen.mp3', {volume: .8} );
 
-		// "s***" + "king"
+		//<VC> "s***" + "king"
 		playClip( guildConnection, msgText.includes('s***') && msgText.includes('King'), 
 			'./voiceClips/mrking.mp3', {volume: .8} );
 
-		// "you like it"
+		//<VC> "you like it"
 		playClip( guildConnection, msgText.includes('you like it') || msgText.includes('you like that'), 
 			'./voiceClips/likeit.mp3', {volume: 1.1} );
 
-		// "swag"
+		//<VC> "swag"
 		playClip( guildConnection, msgText.includes('swag'), 
 			'./voiceClips/swagout.mp3', {volume: .9} );
 
-		// "Robbie"
+		//<VC> "Robbie"
 		playClip( guildConnection, msgText.includes('Robbie'),
 			'./voiceClips/aightrobbie.mp3', {volume: .7} );
 
-		// "fly niggga" (spelled weird but it works)
+		//<VC> "fly niggga" (spelled weird but it works)
 		playClip( guildConnection, msgText.includes('fly niggga'),
 			'./voiceClips/flynigga.mp3', {volume: 1} );
 
-		// "fresh tap"
+		//<VC> "fresh tap"
 		playClip( guildConnection, msgText.includes('fresh tap'),
 			'./voiceClips/youCanMakeFreshTap.ogg', {volume: 1} );
 
-		// "straight fresh"
+		//<VC> "straight fresh"
 		playClip( guildConnection, msgText.includes('straight fresh'),
 			'./voiceClips/straightFresh.ogg', {volume: 1} );
 
-		// "nice knees"
+		//<VC> "nice knees"
 		playClip( guildConnection, msgText.includes('nice knees'),
 			'./voiceClips/niceknees.mp3', {volume: 1} );
 
-		// "not ready"
+		//<VC> "not ready"
 		playClip( guildConnection, msgText.includes('not ready'),
 			'./voiceClips/notready.mp3', {volume: 1} );
 
-		// "powerlifter"
+		//<VC> "powerlifter"
 		playClip( guildConnection, msgText.includes('powerlifter'),
 			'./voiceClips/powerlifter.mp3', {volume: 1} );
 
-		// "first step" / "step one"
+		//<VC> "first step" / "step one"
 		playClip( guildConnection, msgText.includes('first step') || msgText.includes('step one'),
 			'./voiceClips/step1.mp3', {volume: 1} );
 
-		// "test tube" / "snail man"
+		//<VC> "test tube" / "snail man"
 		playClip( guildConnection, msgText.includes('test tube') || msgText.includes('snail m'),
 			'./voiceClips/snailman.mp3', {volume: 1} );
 
-		// "good night"
+		//<VC> "good night"
 		playClip( guildConnection, msgText.toLowerCase().includes('goodnight') || msgText.toLowerCase().includes('good night'),
 			'./voiceClips/goodnightManPeace.ogg', {volume: 1} );
 
-		// "nice bike" / "trike"
+		//<VC>"nice bike" / "trike"
 		playClip( guildConnection, msgText.includes('nice bike') || msgText.includes('tricycle'),
 			'./voiceClips/iGotANiceBike.ogg', {volume: .8} );
 
-		// "it's like that"
+		//<VC> "it's like that"
 		playClip( guildConnection, msgText.includes('it\'s like that'),
 			'./voiceClips/itsLoikeThat.ogg', {volume: 1} );
 
-		// "dinosaur"
+		//<VC> "dinosaur"
 		playClip( guildConnection, msgText.includes('dinosaur'),
 			'./voiceClips/sillyDinosaurMan.ogg', {volume: .9} );
 
 		// NON MDE QUOTES
 		if(!strictlySam){
-			// "I'm kind of retarded"
+			//<VC> "I'm kind of retarded"
 			playClip( guildConnection, msgText.includes('I\'m kind of retarded'),
 				'./voiceClips/AlexJones_ImKindaRetarded.mp3', {volume: .6} );
 
-			// "a lot of damage"
+			//<VC> "a lot of damage"
 			playClip( guildConnection, msgText.includes('a lot of damage'),
 				'./voiceClips/PhilSwift_LottaDamage.mp3', {volume: .4} );
 
-			// "quite" + "big"
+			//<VC> "quite" + "big"
 			playClip( guildConnection, msgText.includes('quite') &&  msgText.includes('big'),
 				'./voiceClips/quiteBig.ogg', {volume:.4} );
 
-			// "ah shit" / "here we go again"
+			//<VC> "ah shit" / "here we go again"
 			playClip( guildConnection, msgText.includes('ah s***') || msgText.includes('here we go again'),
 				'./voiceClips/ahShitHereWeGoAgain.ogg', {volume: .7} );
 
-			// "trash"
+			//<VC> "trash"
 			playClip( guildConnection, msgText.includes('trash'),
 				'./voiceClips/knowYourPlaceTrash.ogg', {volume: .5} );
 
-			// "emotional damage"
+			//<VC> "emotional damage"
 			playClip( guildConnection, msgText.includes('emotional damage'),
 				'./voiceClips/emotionalDamage.ogg', {volume: .5} );
 
-			// "horn noises" (airhorn)
+			//<VC> "horn noises" (airhorn)
 			playClip( guildConnection, msgText.includes('horn noises'),
 			'./voiceClips/airhorn.mp3', {volume: .5} );
 
-			// "i'm fine"
+			//<VC> "i'm fine"
 			playClip( guildConnection, msgText.toLowerCase().includes('i\'m fine'),
 			'./voiceClips/theyAskYouHowYouAre.ogg', {volume: .65} );
 
-			// "China"
+			//<VC> "China"
 			playClip( guildConnection, msgText.toLowerCase().includes('china'),
 			'./voiceClips/socialCreditDeductedHalo.ogg', {volume: .8} );
 
-			// "420"
+			//<VC> "420"
 			playClip( guildConnection, msgText.includes('420'),
 			'./voiceClips/smokeWeedEveryDay.mp3', {volume: 1.2} );
 
-			// "good" + "food"
-			playClip( guildConnection, msgText.includes('good') & msgText.includes(''),
+			//<VC> "good" + "food"
+			playClip( guildConnection, msgText.includes('good') & msgText.includes('food'),
 			'./voiceClips/finallySomeGoodFuckingFood.wav', {volume: 2});
 
-			// "these nuts"  	-- D E E Z N U T S --
+			//<VC> "these nuts"
 			playClip( guildConnection, msgText.includes('these nuts') & msgText.includes(''),
 			'./voiceClips/gottym0.ogg', {volume: .6});
 
@@ -605,7 +605,7 @@ client.on("speech", (msg) => {
 			 ********************/
 
 
-			// "thick"
+			//<VC> "thick"
 			if(msgText.includes('thick')){
 				var rand = Math.floor(Math.random() * 3);
 				var vol;
@@ -618,7 +618,7 @@ client.on("speech", (msg) => {
 				doCooldown(msg.member.guild.id);
 			}
 
-			// "suspicious"
+			//<VC> "suspicious"
 			if(msgText.includes('suspicious')){
 				var rand = Math.floor(Math.random() * 2);
 				var vol;
@@ -630,7 +630,7 @@ client.on("speech", (msg) => {
 				doCooldown(msg.member.guild.id);
 			}
 
-			// "Steven"
+			//<VC> "steven"
 			if(msgText.toLowerCase().includes('steven')){
 				var rand = Math.floor(Math.random() * 6);
 				var vol;
@@ -646,7 +646,7 @@ client.on("speech", (msg) => {
 				doCooldown(msg.member.guild.id);
 			}
 
-			// "Timmy"
+			//<VC> "timmy"
 			if(msgText.toLowerCase().includes('timmy')){
 				var rand = Math.floor(Math.random() * 4);
 				var vol;
@@ -660,7 +660,7 @@ client.on("speech", (msg) => {
 				doCooldown(msg.member.guild.id);
 			}
 
-			// "nice cock"
+			//<VC> "nice cock"
 			if(msgText.includes('nice cock') || msgText.toLowerCase().includes('jason')){
 				var vol;
 				switch(progression_NiceCock){
