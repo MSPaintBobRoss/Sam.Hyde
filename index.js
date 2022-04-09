@@ -7,6 +7,7 @@ const auth = require('./auth.json');
 const voiceSets = require('./voiceClips/_voiceSets.json')
 global.fetch = require('node-fetch');
 const fs = require('fs');
+const { moveMessagePortToContext } = require("worker_threads");
 var serverSettings = loadServerSettings();
 var serverSettingsJSON;
 
@@ -557,7 +558,7 @@ client.on("speech", (msg) => {
 			playClip( guildConnection, msgText.includes('quite') &&  msgText.includes('big'),
 				'./voiceClips/quiteBig.ogg', {volume:.4} );
 
-			// "ah shit" + "here we go again"
+			// "ah shit" / "here we go again"
 			playClip( guildConnection, msgText.includes('ah s***') || msgText.includes('here we go again'),
 				'./voiceClips/ahShitHereWeGoAgain.ogg', {volume: .7} );
 
@@ -585,6 +586,14 @@ client.on("speech", (msg) => {
 			playClip( guildConnection, msgText.includes('420'),
 			'./voiceClips/smokeWeedEveryDay.mp3', {volume: 1.2} );
 
+			// "good" + "food"
+			playClip( guildConnection, msgText.includes('good') & msgText.includes(''),
+			'./voiceClips/finallySomeGoodFuckingFood.wav', {volume: 2});
+
+			// "these nuts"  	-- D E E Z N U T S --
+			playClip( guildConnection, msgText.includes('these nuts') & msgText.includes(''),
+			'./voiceClips/gottym0.ogg', {volume: .6});
+
 			// "plead" + "fifth"
 
 			// "built different"
@@ -602,7 +611,7 @@ client.on("speech", (msg) => {
 				var vol;
 				switch(rand){
 					case 0: vol = .9; break;
-					case 1: vol = .5; break;
+					case 1: vol = .4; break;
 					case 2: vol = .5; break;
 				}
 				const dispatcher = guildConnection.play("./voiceClips/damnBoy" + rand + ".ogg", {volume: vol});
