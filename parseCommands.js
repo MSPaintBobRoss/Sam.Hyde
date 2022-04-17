@@ -4,8 +4,9 @@ var samCommandList = new Array(String);
 var voiceCommandList = new Array(String);
 var README;
 
+// THIS SCRIPT COLLECTS ANY COMMENTS STARTING WITH //<TAGNAME> FROM INDEX.JS
 
-// COLLECTING COMMAND TAGS <VC>
+// COLLECTING COMMAND TAGS <TAGNAME>
 fs.readFile('index.js',function(err, indexData){
     var lines = indexData.toString().split("\n");
     for(var i = 0; i < lines.length; i++){

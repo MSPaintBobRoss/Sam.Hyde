@@ -8,9 +8,7 @@ const voiceSets = require('./voiceClips/_voiceSets.json')
 global.fetch = require('node-fetch');
 const fs = require('fs');
 const { moveMessagePortToContext } = require("worker_threads");
-var serverSettings = loadServerSettings();
-var serverSettingsJSON;
-
+const { exit } = require("process");
 
 /******************
  * DECLS AND VARS *
@@ -25,8 +23,15 @@ const client = new Discord.Client({
 });
 
 const discordSR = new DiscordSR(client);
-var strictlySam = false;					// Disables all non-sam voice clips
-var progression_NiceCock = 0;				// Progresses through 4 versions of nice cock
+var strictlySam = false;					// Disables all non-sam voice clips. NOT SERVER SEPARATED
+var progression_NiceCock = 0;				// Progresses through 4 versions of nice cock. NOT SERVER-SEPARATED
+
+// Server settings stuff
+var serverSettingsJSON;	// JSON representation of server settings
+var serverSettings;	// Datastructure representation of server settings
+var reconnections = new Array; // The channels that must be reconnected to on startup
+loadServerSettings();
+
 
 /*************
  *    ***	 *
@@ -43,7 +48,6 @@ function playClip(guildConnection, searchLogic, PATH, settings){
 	if(searchLogic){
 		const dispatcher = guildConnection.play(PATH, settings);
 		dispatcher.on('start', () => {
-			console.log(dispatcher.paused + " - " + dispatcher.pausedTime);
 			dispatcher.pausedTime = 0;
 		})
 		doCooldown(guildConnection.channel.guild.id);
@@ -107,12 +111,29 @@ function searchForSequence(words, sequence){
     return false;
 }
 
-// Special version of TheyCallMe
+// Special version of TheyCallMe. 4/7 chance to get Moonman, 2/7 to get Teenus, 1/7 to get David Duke?
 function theyCallMeMoonman(guildConnection, msg){
-	const dispatcher = guildConnection.play("./voiceClips/theycallme12.ogg", {volume: 1});
-	setTimeout(function(){ msg.member.setNickname('Moonman') }, 500);
-	setTimeout(function(){ msg.member.setNickname('Teenus') }, 12500);
-	setTimeout(function(){ msg.member.setNickname('David Duke?')}, 24000);
+	console.log(' >> Attempting moonman. Rand = ' + rand);
+	var dispatcher;
+	switch(rand){
+		case 0:
+		case 1:
+		case 2:
+		case 3:	dispatcher = guildConnection.play("./voiceClips/theycallme12.ogg", {volume: 1});
+				setTimeout(function(){ msg.member.setNickname('Moonman') }, 500);
+				break;
+		case 4:
+		case 5:	dispatcher = guildConnection.play("./voiceClips/theycallme13.ogg", {volume: 1});
+				setTimeout(function(){ msg.member.setNickname('Moonman') }, 500);
+				setTimeout(function(){ msg.member.setNickname('Teenus') }, 12500);
+				break;
+		case 6:	dispatcher = guildConnection.play("./voiceClips/theycallme14.ogg", {volume: 1});
+				setTimeout(function(){ msg.member.setNickname('Moonman') }, 500);
+				setTimeout(function(){ msg.member.setNickname('Teenus') }, 12500);
+				setTimeout(function(){ msg.member.setNickname('David Duke?')}, 24000);
+				break;
+	}
+
 }
 
 
@@ -122,29 +143,39 @@ function theyCallMeMoonman(guildConnection, msg){
  ******************/
 
 function loadServerSettings(){
-	var collection = new Discord.Collection();
+	serverSettings = new Discord.Collection();
 	
 	//Read the server settings json
 	fs.readFile('SERVER_SETTINGS.json', function(err, data) {
 		// Check for errors
 		if (err) throw err;   
+		
 		// Handle each entry being loaded
 		serverSettingsJSON = JSON.parse(data);
 		for(var i = 0; i < serverSettingsJSON.keys.length; i++){
 			var key = serverSettingsJSON.keys[i]
-			collection.set(key,serverSettingsJSON.data[i]);
-			//Apply some changes for everything being loaded.
-			collection.get(key).cooldownActive = false; 	//Reset all cooldownActive to false
-			collection.get(key).isListening = true;			//Reset listening status to true
-		}
-		console.log(collection);
-	});
+			serverSettings.set(key,serverSettingsJSON.data[i]);
+			
+			// Find channel IDs we need to reconnect to
+			if( serverSettings.get(key).savedInChannel != null ){
+				reconnections.push( serverSettings.get(key).savedInChannel );
+			}
 
-	return collection;
+			// Apply some changes for everything being loaded.
+			serverSettings.get(key).cooldownActive = false; 	//Reset all cooldownActive to false
+			serverSettings.get(key).isListening = true;			//Reset listening status to true
+			serverSettings.get(key).savedInChannel = null;
+		}
+		// Save what we just changed
+		saveServerSettings();
+
+		console.log(serverSettings);
+		//console.log("Reconnections: \n" + reconnections);
+	});
 }
 
-
-function saveServerSettings(){
+// Save server settings, and shutdown if passed TRUE
+function saveServerSettings(shutdown){
 	// Apply all of the keys to serverSettingsJSON
 	serverSettingsJSON.keys = serverSettings.keyArray();
 
@@ -156,11 +187,14 @@ function saveServerSettings(){
 	
 	fs.writeFile('SERVER_SETTINGS.json', JSON.stringify( serverSettingsJSON ), err => {
      
-    // Checking for errors
-    if (err) throw err; 
-   
-    console.log("Done writing"); // Success
-});
+		// Checking for errors
+		if (err) throw err; 
+	
+		console.log("Done writing"); // Success
+
+		// Exit if shutdown flag
+		if(shutdown) process.exit();
+	});
 }
 
 
@@ -239,7 +273,38 @@ function searchGoogle(msg){
  * LESSER TRIGGERS *
  *******************/
 
+// When online, set activity to help message
+client.on('ready', function(){
+	client.user.setActivity('Type "hey sam"');
+	console.log("Ready");
+	
+	// Reconnect to remaining servers if necessary
+	if(reconnections.length > 0){
+		console.log("Reconnecting to " + reconnections.length + " servers...")
+		for(var i = 0; i < reconnections.length; i++){
+			client.channels.fetch(reconnections[i]).then( channel => channel.join() );
+		}
+	}
+});
+
+
 client.on('message', msg => {
+	
+	// Owner-only commands for maintenance
+	if(msg.member.user.tag == 'MS Paint Bob Ross#4158'){
+			
+		// "save and shut down" - Save whatever channels it's currently in, and rejoin on startup
+		if(msg.content.includes('hey sam shutdown') || msg.content.includes('hey sam shut down')){
+			client.voice.connections.forEach( function(value, key, map){
+				serverSettings.get(value.channel.guild.id).savedInChannel = value.channel.id;
+			});
+			saveServerSettings(true);
+		}
+
+		// "clean up" 
+	}
+	
+	
 	if (msg.member?.voice.channel && msg.content.toLowerCase() == 'hey sam'){
 		const connection = msg.member.voice.channel.join();
 
@@ -250,6 +315,7 @@ client.on('message', msg => {
 			serverSettings.get(msg.guild.id).voiceCooldown = 15;
 			serverSettings.get(msg.guild.id).cooldownActive = false;
 			serverSettings.get(msg.guild.id).isListening = true;
+			serverSettings.get(msg.guild.id).savedInChannel = null;
 			console.log(serverSettings);
 			console.log(serverSettings.keyArray());
 			saveServerSettings();
@@ -268,12 +334,9 @@ client.on('message', msg => {
 
   });
 
-// When online, set activity to help message
-client.on('ready', function(){
-	client.user.setActivity('Type "hey sam"');
-	console.log("Ready");
-})
-
+  client.on('error', (err) => {
+	console.log(err.message)
+ });
 
 // Triggers whenver a member joins/leaves a channel, mutes/unmutes, etc.
 client.on("voiceStateUpdate", function(oldMember, newMember){
@@ -312,8 +375,7 @@ client.on("voiceStateUpdate", function(oldMember, newMember){
 			else if(nick == 'Pineapple Man') callMeNum = 11;
 
 			// Play line if coolguy detected
-			if(callMeNum != -1) 
-				guildConnection.play( "./voiceClips/theycallme" + callMeNum + ".mp3", {volume: .7} );
+			if(callMeNum != -1) guildConnection.play( "./voiceClips/theycallme" + callMeNum + ".mp3", {volume: .7} );
 		
 		}
 
@@ -354,7 +416,7 @@ client.on("speech", (msg) => {
 	if( msgText.includes('Sam') ){
 		
 		//<SAM> "f*** off" - Kick Sam from the channel
-		if(msgText.includes('f*** off')){
+		if(msgText.includes('f*** off') || msgText.includes('Buck off')){
 			msg.member.voice.channel.leave();
 		}
 
@@ -370,17 +432,7 @@ client.on("speech", (msg) => {
 			const dispatcher = guildConnection.play( "./voiceClips/ok0.ogg", {volume: .7} );
 		}
 
-		else if(msgText.includes('debug server')){
-			console.log( msg.member.guild );
-			playAffirmation(guildConnection);
-		}
-
-		else if(msgText.includes('debug connections')){
-			console.log( client.voice.connections );
-			playAffirmation(guildConnection);
-		}
-
-		//<SAM> "set cooldown <seconds>" - Set the phrase cooldown
+		//<SAM> "set cooldown *X*" - Set the quote cooldown to X seconds
 		else if(msgText.includes('set cool')){
 			var msgArray = msgText.split(' ');
 			var parsedCD = parseFloat(msgArray[msgArray.length-1]);
@@ -397,12 +449,13 @@ client.on("speech", (msg) => {
 			// Exception for missing permissions
 			// DO THIS AT SOME POINT ^^^
 			// Exception for morty because fuck him
-			if (msg.member.user.tag == 'FairWinds#8525'){
+			if (messengerID == 'FairWinds#8525'){
 				const dispatcher = guildConnection.play( "./voiceClips/FUMorty.ogg", {volume: .7} );
 				return;
 			}
 			
 			var rand = Math.floor(Math.random() * 13);
+			//var rand = 12;
 			var clipName = ("./voiceClips/theycallme" + rand + ".mp3");	
 			var name = '';
 			switch(rand) {
@@ -445,7 +498,7 @@ client.on("speech", (msg) => {
 	/***********************
 	 *        ******       *
 	 * VOICE COMMANDS HERE *
-	 *		  ******
+	 *		  ******	   *
 	 * *********************/
 
 	// Voice recognition clips ONLY IF IS LISTENING and NOT ON COOLDOWN
@@ -454,10 +507,6 @@ client.on("speech", (msg) => {
 		//<VC> "snake eyes"
 		playClip( guildConnection, msgText.includes('snake eyes'), 
 			'./voiceClips/fiveone.mp3', {volume: .9} );
-
-		//<VC> "John Oliver"
-		playClip( guildConnection, msgText.toLowerCase().includes('john oliver'), 
-			'./voiceClips/johnOliver.mp3', {volume: .6} );
 
 		//<VC> "early" + "often"
 		playClip( guildConnection, msgText.includes('early') && msgText.includes('often'), 
@@ -548,6 +597,13 @@ client.on("speech", (msg) => {
 		playClip( guildConnection, msgText.includes('dinosaur'),
 			'./voiceClips/sillyDinosaurMan.ogg', {volume: .9} );
 
+		// "i'm just so full"
+	
+		// "do you feel silly"
+
+		// "self defense situation"
+
+
 		// NON MDE QUOTES
 		if(!strictlySam){
 			//<VC> "I'm kind of retarded"
@@ -587,16 +643,32 @@ client.on("speech", (msg) => {
 			'./voiceClips/socialCreditDeductedHalo.ogg', {volume: .8} );
 
 			//<VC> "420"
-			playClip( guildConnection, msgText.includes('420'),
-			'./voiceClips/smokeWeedEveryDay.mp3', {volume: 1.2} );
+			playClip( guildConnection, msgText.includes('420') || msgText.includes('4:20'),
+			'./voiceClips/smokeWeedEveryDay.mp3', {volume: .8} );
 
 			//<VC> "good" + "food"
 			playClip( guildConnection, msgText.includes('good') & msgText.includes('food'),
 			'./voiceClips/finallySomeGoodFuckingFood.wav', {volume: 2});
 
 			//<VC> "these nuts"
-			playClip( guildConnection, msgText.includes('these nuts') & msgText.includes(''),
+			playClip( guildConnection, msgText.includes('these nuts') || msgText.includes('Deez Nuts'),
 			'./voiceClips/gottym0.ogg', {volume: .6});
+
+			//<VC> "69"
+			playClip( guildConnection, msgText.includes('69'),
+			'./voiceClips/CLICK_Noice.mp3', {volume: .7});
+
+			//<VC> "sheesh"
+			playClip( guildConnection, msgText.includes('sheesh') || msgText.includes('Shish"'),
+			'./voiceClips/sheesh.mp3', {volume: .7});
+
+			//<VC> "sometimes maybe good"
+			playClip( guildConnection, msgText.includes('sometimes maybe good'),
+			'./voiceClips/sometimesMaybeGood.mp3',{volume: .7});
+
+			//<VC> "Vsauce" / "Michael"
+			playClip( guildConnection, msgText.includes('Vsauce') || msgText.includes('Michael'),
+			'./voiceClips/vSauce.ogg',{volume: .8});
 
 			// "plead" + "fifth"
 
@@ -635,7 +707,7 @@ client.on("speech", (msg) => {
 			}
 
 			//<VC> "steven"
-			if(msgText.toLowerCase().includes('steven')){
+			if(msgText.toLowerCase().includes('steven') || msgText.toLowerCase().includes('stephen')){
 				var rand = Math.floor(Math.random() * 6);
 				var vol;
 				switch(rand){
