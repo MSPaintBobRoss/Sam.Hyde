@@ -113,6 +113,7 @@ function searchForSequence(words, sequence){
 
 // Special version of TheyCallMe. 4/7 chance to get Moonman, 2/7 to get Teenus, 1/7 to get David Duke?
 function theyCallMeMoonman(guildConnection, msg){
+	var rand = Math.floor(Math.rand() * 7);
 	console.log(' >> Attempting moonman. Rand = ' + rand);
 	var dispatcher;
 	switch(rand){
@@ -631,7 +632,7 @@ client.on("speech", (msg) => {
 				'./voiceClips/emotionalDamage.ogg', {volume: .5} );
 
 			//<VC> "horn noises" (airhorn)
-			playClip( guildConnection, msgText.includes('horn noises'),
+			playClip( guildConnection, msgText.includes('horn noise'),
 			'./voiceClips/airhorn.mp3', {volume: .5} );
 
 			//<VC> "i'm fine"
@@ -669,6 +670,10 @@ client.on("speech", (msg) => {
 			//<VC> "Vsauce" / "Michael"
 			playClip( guildConnection, msgText.includes('Vsauce') || msgText.includes('Michael'),
 			'./voiceClips/vSauce.ogg',{volume: .8});
+
+			//<VC> "wake me up"
+			playClip( guildConnection, msgText.includes('wake me up'),
+			'./voiceClips/wakeMeUp.ogg',{volume: .2});
 
 			// "plead" + "fifth"
 
